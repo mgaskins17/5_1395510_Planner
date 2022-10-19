@@ -60,6 +60,7 @@ var $savebtn = $('<button>').text('Save').addClass('save-btn btn').attr('style',
 // Saving Inputted information when save button is clicked
 if (localStorage == null) {
     var ToDo = [];
+    console.log('Local Storage is empty!')
 } else {
     console.log('Local Storage is not empty!')
     var ToDo = JSON.parse(localStorage.getItem('To-Do'));
