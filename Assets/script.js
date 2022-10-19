@@ -22,20 +22,26 @@ setInterval(rendClock,1000);
 var $currentday = $('#currentDay').text($today + ', ' + $date); // identifying where the date will go
 
 // obtaining the current time using the moment api
-var $starthour = moment().format('h'); // gives the hour
 var $AMPM = moment().format('a'); // gives whether it's AM or PM 
-
+if ($AMPM == "am") {
+    var $starthour = moment().format('h'); // gives the hour
+    console.log($starthour);
+} else {
+    var $starthour = (moment().format('h')); // gives the hour
+    $starthour = parseInt($starthour)+12;
+    console.log($starthour);
+}
 //first create a div for the house that will house the time on the left, a block for the planner, then the save button on the right
 for (let i = 9; i < 18; i++) {
 
 // building out the entire block which contains the hour, workspace, and save button
 var $blockEl = $('<div>').addClass('time-blk').appendTo($containerEl).attr('style','display:flex; flex-direction:row; height: 75px');
-$blockEl.attr('id',i);
 $blockEl.data('time',i);
+
 // An if statement dividing up whether there is AM or PM at the end of the time
 if (i < 12) {
     $blockEl.addClass('am');
-    var $hourEl = $('<h6>').text((i)+':00 AM').addClass('time-hr').attr('style','width:10%; border-top:2px solid black').appendTo($blockEl);
+    var $hourEl = $('<h6>').text((i)+':00 AM').addClass('time-hr').attr('style','width:10%; border-top:2px solid black;').appendTo($blockEl);
 } else if (i==12) {
     $blockEl.addClass('pm');
     var $hourEl = $('<h6>').text((i)+':00 PM').addClass('time-hr').attr('style','width:10%; border-top:2px solid black').appendTo($blockEl);
@@ -44,30 +50,55 @@ if (i < 12) {
     var $hourEl = $('<h6>').text((i-12)+':00 PM').addClass('time-hr').attr('style','width:10%; border-top:2px solid black').appendTo($blockEl);
 }
 // Building out the workspace where you can type out your schedule and save it using the button
-var $workspc = $('<input>').addClass('text-input input').attr('style','width: 80%; padding:0').appendTo($blockEl);
+var $workspc = $('<input>').addClass('text-input').attr('style','width: 80%; padding:0; background-color: white').appendTo($blockEl);
+$workspc.attr('id',i);
 // var $savebtncont = $('<div>').attr('style','border:2px solid black; width:10%').appendTo($blockEl);
 var $savebtn = $('<button>').text('Save').addClass('save-btn btn').attr('style','width:10%; height:100%; background-color:rgb(122,206,244); position: relative').appendTo($blockEl);
 
 }
 
-
-
 // Saving Inputted information when save button is clicked
+if (localStorage == null) {
+    var ToDo = [];
+} else {
+    console.log('Local Storage is not empty!')
+    var ToDo = JSON.parse(localStorage.getItem('To-Do'));
+}
+
 $containerEl.on('click', 'button', function(e) {
-    var textinput = $(this).siblings('input').val();
-    localStorage.setItem("To-Do",JSON.stringify(textinput));
+    e.preventDefault
+    ToDoObject = {
+        hour: parseInt($(this).siblings('input').prop('id')) ,
+
+        message: $(this).siblings('input').val(),
+    }
+    ToDo.push(ToDoObject);
+    // Saving to local storage
+    localStorage.setItem("To-Do",JSON.stringify(ToDo));
 })
 
+$('.text-input').each(function(e){
+    e.preventDefault
+    var ToDos = JSON.parse(localStorage.getItem('To-Do'));
+    if (ToDos !== null) {
+    for (let i = 0; i < ToDos.length; i++){
+        var ToDoHour = ToDos[i].hour;
+        var ToDoMessage = ToDos[i].message;
+        InputNum = $('#' + ToDoHour);
+        InputNum.val(ToDoMessage);
+    }
+    }
+})
 
-// formatting the options down here - using different colors
-$('.time-blk').each(function(){
+// formatting the options down here - using different colors - DOES NOT WORK RIGHT NOW
+$('.text-input').each(function(){
     var compareval = parseInt($(this).prop('id'));
     if (compareval > $starthour) {
-        $(this).attr('style','background-color:green');
+        $(this).attr('style','width: 80%; background-color:green');
     } else if (compareval == $starthour) {
-        $(this).attr('style','background-color:red');
+        $(this).attr('style','width: 80%; background-color:red');
     } else {
-        $(this).attr('style','background-color:gray');
+        $(this).attr('style','width: 80%; background-color:gray');
     }
 })
 
